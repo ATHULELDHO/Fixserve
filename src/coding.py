@@ -10,6 +10,27 @@ def login():
     return render_template("login.html")
 
 
+@app.route("/login_code", methods=['post'])
+def login_code():
+    username = request.form['textfield']
+    password = request.form['textfield2']
+
+    qry = "SELECT * FROM `login` WHERE `username`=%s AND `password`=%s"
+    val = (username, password)
+    res = selectone(qry, val)
+
+    if res is None:
+        return '''<script>alert("Invalid username or password");window.location="/"</script>'''
+    elif res['type'] == "admin":
+        return '''<script>alert("Welcome admin");window.location="/admin_home"</script>'''
+    elif res['type'] == "service_provider":
+        return '''<script>alert("Welcome Service provider");window.location="/provider_home"</script>'''
+    elif res['type'] == "user":
+        return '''<script>alert("Welcome User");window.location="/user_home"</script>'''
+    else:
+        return '''<script>alert("Invalid username or password");window.location="/"</script>'''
+
+
 @app.route("/user_registration")
 def user_registration():
     return render_template("useReg.html")
@@ -51,7 +72,7 @@ def view_request():
 
 @app.route("/admin_home")
 def admin_home():
-    return render_template("adminhome.html")
+    return render_template("admin/adminhome.html")
 
 @app.route("/provider_home")
 def provider_home():
