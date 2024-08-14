@@ -43,7 +43,7 @@ def provider_registration():
 
 @app.route("/block_provider")
 def block_provider():
-    return render_template("blockprovider.html")
+    return render_template("admin/blockprovider.html")
 
 
 @app.route("/complaint_reply")
@@ -53,12 +53,12 @@ def complaint_reply():
 
 @app.route("/verify_provider")
 def verify_provider():
-    return render_template("verifyprovider.html")
+    return render_template("admin/verifyprovider.html")
 
 
 @app.route("/view_complaint")
 def view_complaint():
-    return render_template("viewcomplaint.html")
+    return render_template("admin/viewcomplaint.html")
 
 @app.route("/rating_provider")
 def rating_provider():
@@ -81,5 +81,16 @@ def provider_home():
 @app.route("/user_home")
 def user_home():
     return render_template("userhome.html")
+
+@app.route("/request_provder")
+def request_provder():
+    return render_template("requestprovider.html")
+
+@app.route("/request_status")
+def request_status():
+    return render_template("requeststatus.html")
+
+
+
 
 app.run(debug = True)
