@@ -6,6 +6,8 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
+app.secret_key = "73467834657"
+
 
 @app.route("/")
 def login():
@@ -102,22 +104,72 @@ def proregister_code():
 
 @app.route("/block_provider")
 def block_provider():
-    return render_template("admin/blockprovider.html")
+    qry = 'SELECT * FROM `serviceprovider` JOIN `login` ON `serviceprovider`.lid = `login`.id WHERE `login`.type != "pending"'
+    res = selectall(qry)
+    return render_template("admin/blockprovider.html", val=res)
 
 
 @app.route("/complaint_reply")
 def complaint_reply():
-    return render_template("complaintReply.html")
+    id = request.args.get('id')
+    session['cid'] = id
+    return render_template("admin/complaintReply.html")
+
+
+
+@app.route("/insert_reply", methods=['post'])
+def insert_reply():
+    reply = request.form['textfield']
+    qry = "UPDATE `complaint` SET `reply`=%s WHERE `id`=%s"
+    iud(qry, (reply, session['cid']))
+    return '''<script>alert("Success");window.location="/view_complaint"</script>'''
 
 
 @app.route("/verify_provider")
 def verify_provider():
-    return render_template("admin/verifyprovider.html")
+    qry = 'SELECT * FROM `serviceprovider` JOIN `login` ON `serviceprovider`.lid = `login`.id WHERE `login`.type = "pending"'
+    res = selectall(qry)
+    return render_template("admin/verifyprovider.html", val=res)
+
+
+@app.route("/accept_provider")
+def accept_provider():
+    id = request.args.get('id')
+    qry = 'UPDATE `login` SET `type`="service_provider" WHERE id=%s'
+    iud(qry,id)
+    return '''<script>alert("Success");window.location="/verify_provider"</script>'''
+
+
+@app.route("/reject_provider")
+def reject_provider():
+    id = request.args.get('id')
+    qry = 'UPDATE `login` SET `type`="rejected" WHERE id=%s'
+    iud(qry,id)
+    return '''<script>alert("Success");window.location="/verify_provider"</script>'''
+
+
+@app.route("/block_provider2")
+def block_provider2():
+    id = request.args.get('id')
+    qry = 'UPDATE `login` SET `type`="blocked" WHERE id=%s'
+    iud(qry,id)
+    return '''<script>alert("Success");window.location="/block_provider"</script>'''
+
+
+@app.route("/unblock_provider")
+def unblock_provider():
+    id = request.args.get('id')
+    qry = 'UPDATE `login` SET `type`="service_provider" WHERE id=%s'
+    iud(qry,id)
+    return '''<script>alert("Success");window.location="/block_provider"</script>'''
 
 
 @app.route("/view_complaint")
 def view_complaint():
-    return render_template("admin/viewcomplaint.html")
+        qry = 'SELECT * FROM `complaint` JOIN `user` ON `complaint`.`userid`=`user`.`lid` where reply="pending"'
+        res = selectall(qry)
+        return render_template("admin/viewcomplaint.html", val=res)
+
 
 @app.route("/rating_provider")
 def rating_provider():
@@ -126,7 +178,7 @@ def rating_provider():
 
 @app.route("/view_request")
 def view_request():
-    return render_template("viewrequest.html")
+    return render_template("provider/viewrequest.html")
 
 
 @app.route("/admin_home")
@@ -135,7 +187,7 @@ def admin_home():
 
 @app.route("/provider_home")
 def provider_home():
-    return render_template("providerhome.html")
+    return render_template("provider/providerhome.html")
 
 @app.route("/user_home")
 def user_home():
@@ -143,11 +195,57 @@ def user_home():
 
 @app.route("/request_provder")
 def request_provder():
-    return render_template("requestprovider.html")
+
+    qry = "select * from services"
+    res = selectall(qry)
+
+    return render_template("user/requestprovider.html", val2=res)
+
+
+@app.route("/search_request", methods=['post'])
+def search_request():
+    pin = request.form['textfield']
+    service_needed = request.form['select']
+
+    print(service_needed)
+
+    qry = "SELECT `serviceprovider`.* FROM `serviceprovider` JOIN `services` ON `serviceprovider`.`service`=`services`.`id` WHERE `serviceprovider`.`pincode`=%s AND `services`.`id`=%s"
+    res = selectall2(qry, (pin, service_needed))
+
+    print(res)
+
+    qry = "select * from services"
+    res2 = selectall(qry)
+    return render_template("user/requestprovider.html", val=res, val2=res2)
+
+
+@app.route("/send_request")
+def send_request():
+    id = request.args.get('id')
+    session['rid'] = id
+    return render_template("user/send_request.html")
+
+
+@app.route("/insert_request", methods=['post'])
+def insert_request():
+    details = request.form['textfield']
+    photo = request.files['file']
+    lati = request.form['textfield3']
+    longi = request.form['textfield4']
+
+    photo_name = secure_filename(photo.filename)
+    photo.save(os.path.join("static/uploads", photo_name))
+
+    qry = 'INSERT INTO `request` VALUES(NULL,%s,%s,%s,%s,%s,%s,%s,curdate(),"pending")'
+    iud(qry, ("1","1","1",details,photo_name,lati,longi))
+
+    return redirect("/request_provder")
+
+
 
 @app.route("/request_status")
 def request_status():
-    return render_template("requeststatus.html")
+    return render_template("user/requeststatus.html")
 
 
 

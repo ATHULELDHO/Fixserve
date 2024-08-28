@@ -6,38 +6,52 @@
 </head>
 
 <body>
-<form id="form1" name="form1" method="post" action="">
+<form id="form1" name="form1" method="post" action="search_request">
   <table width="200" border="1">
     <tr>
-      <th colspan="2" scope="row">PINCODE</th>
-      <td colspan="2"><label>
-        <input type="text" name="textfield" />
+      <th colspan="1" scope="row">PINCODE</th>
+      <td colspan="1"><label>
+
+       <input type="text" name="textfield" />
+
+          <th colspan="1" scope="row">SERVICE NEEDED</th>
+      <td colspan="1"><label>
+
+          <select name="select">
+
+              {% for i in val2 %}
+
+              <option value="{{i['id']}}">{{i['service_name']}}</option>
+
+              {% endfor %}
+
+          </select>
+
       </label></td>
       <td><label>
         <input type="submit" name="Submit" value="SEARCH" />
       </label></td>
     </tr>
+
+
     <tr>
       <th scope="row">NAME</th>
       <td>LOCATION</td>
-      <td>EXPERIENCE</td>
       <td>PHONE NO </td>
-      <td>&nbsp;</td>
+      <td colspan="2">&nbsp;</td>
     </tr>
+
+      {% for i in val %}
+
     <tr>
-      <th scope="row">&nbsp;</th>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td><a href="#">SEND REQUEST</a></td>
+      <th>{{i['firstname']}} {{i['lastname']}}</th>
+      <td>{{i['place']}}</td>
+      <td>{{i['phone']}}</td>
+      <td colspan="2"><a href="send_request?id={{i['lid']}}">SEND REQUEST</a></td>
     </tr>
-    <tr>
-      <th scope="row">&nbsp;</th>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-    </tr>
+
+      {% endfor %}
+
   </table>
 </form>
 </body>

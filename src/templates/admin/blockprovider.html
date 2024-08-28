@@ -7,9 +7,9 @@
 
 <body>
 <form id="form1" name="form1" method="post" action="">
-  <table width="200" border="1">
+  <table border="1">
     <tr>
-      <th scope="row">FirstName</th>
+       <th scope="row">FirstName</th>
       <td>SecondName</td>
       <td>Email</td>
       <td>Phone</td>
@@ -18,20 +18,37 @@
       <td>Service</td>
       <td>AttestedDoc </td>
       <td>NOC</td>
-      <td>Username</td>
-      <td rowspan="2"><p><a href="#">Block</a></p>
-      <p><a href="#">UnBlock</a></p></td></tr>
+      <td></td>
+    </tr>
+
+    {% for i in  val %}
+
     <tr>
-      <th scope="row">&nbsp;</th>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
+      <th>{{i['firstname']}}</th>
+      <th>{{i['lastname']}}</th>
+      <th>{{i['email']}}</th>
+      <th>{{i['phone']}}</th>
+      <th>{{i['place']}}</th>
+      <th>{{i['pincode']}}</th>
+      <th>{{i['service']}}</th>
+      <th>{{i['villagedoc']}}</th>
+
+      <th>{{i['noc']}}</th>
+
+      <td>
+        {% if i['type'] == "service_provider" %}
+        <p><a href="block_provider2?id={{i['lid']}}">Block</a></p>
+        {% else %}
+        <p>&nbsp;</p>
+      <p><a href="unblock_provider?id={{i['lid']}}">UnBlock</a></p>
+      {% endif %}
+      </td></tr>
+    <tr>
+
+        {% endfor %}
+
+
+
     </tr>
   </table>
 </form>
