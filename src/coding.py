@@ -26,10 +26,13 @@ def login_code():
     if res is None:
         return '''<script>alert("Invalid username or password");window.location="/"</script>'''
     elif res['type'] == "admin":
+        session['lid'] = res['id']
         return '''<script>alert("Welcome admin");window.location="/admin_home"</script>'''
     elif res['type'] == "service_provider":
+        session['lid'] = res['id']
         return '''<script>alert("Welcome Service provider");window.location="/provider_home"</script>'''
     elif res['type'] == "user":
+        session['lid'] = res['id']
         return '''<script>alert("Welcome User");window.location="/user_home"</script>'''
     else:
         return '''<script>alert("Invalid username or password");window.location="/"</script>'''
@@ -64,7 +67,9 @@ def userregister_code():
 
 @app.route("/provider_registration")
 def provider_registration():
-    return render_template("providerReg.html")
+    qry = "SELECT * FROM `services`"
+    res = selectall(qry)
+    return render_template("providerReg.html", val=res)
 
 
 @app.route("/proregister_code", methods=['post'])
@@ -104,7 +109,7 @@ def proregister_code():
 
 @app.route("/block_provider")
 def block_provider():
-    qry = 'SELECT * FROM `serviceprovider` JOIN `login` ON `serviceprovider`.lid = `login`.id WHERE `login`.type != "pending"'
+    qry = 'SELECT * FROM `serviceprovider` JOIN `login` ON `serviceprovider`.lid = `login`.id JOIN `services` ON `serviceprovider`.`service`=`services`.`id` WHERE `login`.type != "pending"'
     res = selectall(qry)
     return render_template("admin/blockprovider.html", val=res)
 
@@ -127,7 +132,7 @@ def insert_reply():
 
 @app.route("/verify_provider")
 def verify_provider():
-    qry = 'SELECT * FROM `serviceprovider` JOIN `login` ON `serviceprovider`.lid = `login`.id WHERE `login`.type = "pending"'
+    qry = 'SELECT * FROM `serviceprovider` JOIN `login` ON `serviceprovider`.lid = `login`.id JOIN `services` ON `serviceprovider`.`service`=`services`.`id` WHERE `login`.type = "pending"'
     res = selectall(qry)
     return render_template("admin/verifyprovider.html", val=res)
 
@@ -207,6 +212,8 @@ def search_request():
     pin = request.form['textfield']
     service_needed = request.form['select']
 
+    session['sid'] = service_needed
+
     print(service_needed)
 
     qry = "SELECT `serviceprovider`.* FROM `serviceprovider` JOIN `services` ON `serviceprovider`.`service`=`services`.`id` WHERE `serviceprovider`.`pincode`=%s AND `services`.`id`=%s"
@@ -237,10 +244,37 @@ def insert_request():
     photo.save(os.path.join("static/uploads", photo_name))
 
     qry = 'INSERT INTO `request` VALUES(NULL,%s,%s,%s,%s,%s,%s,%s,curdate(),"pending")'
-    iud(qry, ("1","1","1",details,photo_name,lati,longi))
+    iud(qry, (session['lid'], session['rid'], session['sid'], details, photo_name, lati, longi))
 
-    return redirect("/request_provder")
+    return '''<script>alert("Request send successfully");window.location="request_provder"</script>'''
 
+
+@app.route("/manage_service")
+def manage_service():
+    qry = "SELECT * FROM `services`"
+    res = selectall(qry)
+    return render_template("admin/manage_services.html", val=res)
+
+
+@app.route("/add_service", methods=['post'])
+def add_service():
+    return render_template("admin/add_services.html")
+
+
+@app.route("/insert_service", methods=['post'])
+def insert_service():
+    service_name = request.form['textfield']
+    qry = "INSERT INTO `services` VALUES(NULL, %s)"
+    iud(qry, service_name)
+    return '''<script>alert("Successfully inserted");window.location="manage_service"</script>'''
+
+
+@app.route("/delete_service")
+def delete_service():
+    id = request.args.get('id')
+    qry = "DELETE FROM `services` WHERE `id`=%s"
+    iud(qry, id)
+    return '''<script>alert("Deleted");window.location="manage_service"</script>'''
 
 
 @app.route("/request_status")

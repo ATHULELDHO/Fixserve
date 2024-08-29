@@ -47,7 +47,14 @@
     <tr>
       <th scope="row">Service  </th>
       <td><label>
-        <input type="text" name="textfield7" />
+       <select name="textfield7">
+         {% for i in val %}
+
+         <option value="{{i['id']}}">{{i['service_name']}}</option>
+
+         {% endfor %}
+
+       </select>
       </label></td>
     </tr>
     <tr>
