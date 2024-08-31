@@ -13,31 +13,22 @@
     </tr>
     <tr>
       <th scope="row">provider name</th>
-      <td>Location</td>
       <td>Service</td>
-      <td>Experience</td>
       <td>Phone number </td>
       <td>Status</td>
-      <td>Date of Visit</td>
     </tr>
+
+    {% for i in val %}
+
     <tr>
-      <th scope="row">&nbsp;</th>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td></td>
+      <th scope="row">{{i['firstname']}} {{i['lastname']}}</th>
+      <td>{{i['service_name']}}</td>
+      <td>{{i['phone']}}</td>
+      <td>{{i['status']}}</td>
     </tr>
-    <tr>
-      <th scope="row">&nbsp;</th>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td> </td>
-    </tr>
+
+    {% endfor %}
+
   </table>
 </form>
 </body>

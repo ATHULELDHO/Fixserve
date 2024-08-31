@@ -11,7 +11,7 @@ app.secret_key = "73467834657"
 
 @app.route("/")
 def login():
-    return render_template("login.html")
+    return render_template("login_index.html")
 
 
 @app.route("/login_code", methods=['post'])
@@ -178,7 +178,28 @@ def view_complaint():
 
 @app.route("/rating_provider")
 def rating_provider():
-    return render_template("ratingprovider.html")
+    qry = "SELECT `serviceprovider`.`firstname`,`lastname`,`rate and review`.* FROM `rate and review` JOIN `serviceprovider` ON `rate and review`.`providerid`=`serviceprovider`.`lid` WHERE `rate and review`.`userid`=%s"
+    res = selectall2(qry, session['lid'])
+    return render_template("user/ratingprovider.html", val=res)
+
+
+@app.route("/add_rating", methods=['post'])
+def add_rating():
+    qry = "SELECT `serviceprovider`.* FROM `serviceprovider` JOIN  `request` ON `serviceprovider`.`lid`=`request`.`providerid` WHERE `request`.`userid`=%s"
+    res = selectall2(qry, session['lid'])
+    return render_template("user/add_rating_and_review.html", val=res)
+
+
+@app.route("/insert_rating_review", methods=['post'])
+def insert_rating_review():
+    pid = request.form['select']
+    rating = request.form['textfield']
+    review = request.form['textfield2']
+
+    qry = "INSERT INTO `rate and review` VALUES(NULL, %s,%s,%s,%s,CURDATE())"
+    iud(qry,(session['lid'], pid,rating,review))
+
+    return '''<script>alert("Success");window.location="rating_provider"</script>'''
 
 
 @app.route("/view_request")
@@ -279,7 +300,10 @@ def delete_service():
 
 @app.route("/request_status")
 def request_status():
-    return render_template("user/requeststatus.html")
+    print(session['lid'])
+    qry = "SELECT `serviceprovider`.`firstname`,`lastname`,`phone`,`services`.`service_name`,`request`.`status` FROM `request` JOIN `serviceprovider` ON `request`.`providerid`=`serviceprovider`.`lid` JOIN `services`ON `request`.`serviceid`=`services`.`id` where request.`userid` = %s"
+    res = selectall2(qry, session['lid'])
+    return render_template("user/requeststatus.html", val=res)
 
 
 

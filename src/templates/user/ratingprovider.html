@@ -6,7 +6,7 @@
 </head>
 
 <body>
-<form id="form1" name="form1" method="post" action="">
+<form id="form1" name="form1" method="post" action="add_rating">
   <table width="241" border="1">
     <tr>
       <th width="51" scope="row">Name</th>
@@ -15,12 +15,22 @@
       <td width="46">Date
       <label></label></td>
     </tr>
+
+    {% for i in val %}
+
     <tr>
-      <th scope="row">&nbsp;</th>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td width="46">&nbsp;</td>
+      <th scope="row">{{i['firstname']}} {{i['lastname']}}</th>
+      <td>{{i['rating']}}</td>
+      <td>{{i['review']}}</td>
+      <td width="46">{{i['date']}}</td>
     </tr>
+
+    {% endfor %}
+
+    <tr>
+      <th colspan="4"> <input type="submit" value="Add"/> </th>
+    </tr>
+
   </table>
 </form>
 </body>
