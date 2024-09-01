@@ -22,6 +22,7 @@ def login_code():
     qry = "SELECT * FROM `login` WHERE `username`=%s AND `password`=%s"
     val = (username, password)
     res = selectone(qry, val)
+    print(res)
 
     if res is None:
         return '''<script>alert("Invalid username or password");window.location="/"</script>'''
@@ -204,20 +205,38 @@ def insert_rating_review():
 
 @app.route("/view_request")
 def view_request():
-    return render_template("provider/viewrequest.html")
+    qry = "SELECT `user`.`firstname`, `lastname`, `request`.*,`services`.service_name FROM `request` JOIN `user` ON `request`.`userid`=`user`.`lid` JOIN `services` ON `request`.`serviceid`=`services`.id WHERE `request`.`providerid`=%s and request.status='pending'"
+    res = selectall2(qry, session['lid'])
+    return render_template("provider/viewrequest.html", val = res)
+
+
+@app.route("/accept_request")
+def accept_request():
+    id = request.args.get('id')
+    qry = "UPDATE `request` SET `status`='accepted' WHERE `id`=%s"
+    iud(qry, id)
+    return '''<script>alert("Success");window.location="/view_request"</script>'''
+
+
+@app.route("/reject_request")
+def reject_request():
+    id = request.args.get('id')
+    qry = "UPDATE `request` SET `status`='accepted' WHERE `id`=%s"
+    iud(qry,id)
+    return '''<script>alert("Success");window.location="/view_request"</script>'''
 
 
 @app.route("/admin_home")
 def admin_home():
-    return render_template("admin/adminhome.html")
+    return render_template("admin/admin_index.html")
 
 @app.route("/provider_home")
 def provider_home():
-    return render_template("provider/providerhome.html")
+    return render_template("provider/provider_index.html")
 
 @app.route("/user_home")
 def user_home():
-    return render_template("user/userhome.html")
+    return render_template("user/user_index.html")
 
 @app.route("/request_provder")
 def request_provder():
@@ -237,7 +256,7 @@ def search_request():
 
     print(service_needed)
 
-    qry = "SELECT `serviceprovider`.* FROM `serviceprovider` JOIN `services` ON `serviceprovider`.`service`=`services`.`id` WHERE `serviceprovider`.`pincode`=%s AND `services`.`id`=%s"
+    qry = "SELECT `serviceprovider`.* FROM `serviceprovider` JOIN `services` ON `serviceprovider`.`service`=`services`.`id` JOIN `login` ON `serviceprovider`.`lid`=`login`.id WHERE `serviceprovider`.`pincode`=%s AND `services`.`id`=%s AND `login`.`type`='service_provider'"
     res = selectall2(qry, (pin, service_needed))
 
     print(res)

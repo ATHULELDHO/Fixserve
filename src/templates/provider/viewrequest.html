@@ -1,5 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+{% extends "provider/provider_index.html" %}
+{% block body %}
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>Untitled Document</title>
@@ -7,27 +7,32 @@
 
 <body>
 <form id="form1" name="form1" method="post" action="">
-  <table width="293" border="1">
+<table width="200" border="1" class="table table-hover table-striped">
     <tr>
-      <th width="51" scope="row">Name</th>
-      <td width="79"><label>Service</label></td>
-      <td width="37">location</td>
-      <td width="46">Date</td>
-      <td width="46">Map </td>
+      <td scope="row">Name</th>
+      <td><label>Service</label></td>
+      <td>Date</td>
+      <td>Map </td>
       <td colspan="2">  </td>
       <label></label></td>
     </tr>
+
+    {%  for i in val %}
+
     <tr>
-      <th scope="row">&nbsp;</th>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td width="46">&nbsp;</td>
-      <td width="46"><a href="#">view map</a></td>
-           <td width="46"><a href="#">Accept</a></td>
-      <td width="46"><a href="#">Reject</a></td>
+      <th scope="row">{{i['firstname']}} {{i['lastname']}}</th>
+      <td>{{i['service_name']}}</td>
+      <td>{{i['date']}}</td>
+      <td><a href="https://www.google.com/maps?q={{i['latitude']}},{{i['longitude']}}">view map</a></td>
+           <td ><a href="accept_request?id={{i['id']}}">Accept</a>
+             <br>
+             <a href="reject_request?id={{i['id']}}">Reject</a></td>
 
     </tr>
+
+    {% endfor %}
+
   </table>
 </form>
 </body>
-</html>
+{% endblock %}

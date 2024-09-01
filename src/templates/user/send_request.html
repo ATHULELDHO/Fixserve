@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "user/user_index.html" %}
+{% block body %}
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
 <form id="form1" name="form1" method="post" action="insert_request" enctype="multipart/form-data">
-  <table width="200" border="1">
+<table width="200" border="1" class="table table-hover table-striped">
     <tr>
       <th scope="row">Details </th>
       <td><label>
@@ -44,4 +44,4 @@
 </form>
 
 </body>
-</html>
+{% endblock %}
