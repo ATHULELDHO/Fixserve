@@ -1,0 +1,30 @@
+{% extends "user/user_index.html" %}
+{% block body %}
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Untitled Document</title>
+</head>
+
+<body>
+<form id="form1" name="form1" method="post" action="add_service">
+<table width="200" border="1" class="table table-hover table-striped">
+  <tr>
+      <th scope="row">Amount</th>
+      <th scope="row">Reply</th>
+
+    </tr>
+
+    {% for i in  val %}
+    <tr>
+      <th>{{i['amount']}}</th>
+      <td>{{i['reply']}}
+      </td>
+    </tr>
+    {% endfor %}
+
+
+
+  </table>
+</form>
+</body>
+{% endblock %}

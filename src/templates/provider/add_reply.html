@@ -1,4 +1,4 @@
-{% extends "admin/admin_index.html" %}
+{% extends "provider/provider_index.html" %}
 {% block body %}
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
@@ -6,11 +6,15 @@
 </head>
 
 <body>.
-<form id="form1" name="form1" method="post" action="insert_reply">
+<form id="form1" name="form1" method="post" action="accept_request">
 <table width="200" border="1" class="table table-hover table-striped">
     <tr>
-      <th>Reply.</th>
+      <th>Amount</th>
        <td colspan="2"> <input type="text" name="textfield"/> </td>
+    </tr>
+    <tr>
+      <th>Reply</th>
+       <td colspan="2"> <input type="text" name="textfield2"/> </td>
     </tr>
     <tr>
 

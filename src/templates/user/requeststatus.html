@@ -16,6 +16,7 @@
       <td>Service</td>
       <td>Phone number </td>
       <td>Status</td>
+        <td>View More Details</td>
     </tr>
 
     {% for i in val %}
@@ -25,6 +26,7 @@
       <td>{{i['service_name']}}</td>
       <td>{{i['phone']}}</td>
       <td>{{i['status']}}</td>
+        <td><a href="view_provider_reply?id={{i['id']}}">View</a> </td>
     </tr>
 
     {% endfor %}

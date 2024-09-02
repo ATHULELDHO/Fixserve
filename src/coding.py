@@ -22,7 +22,7 @@ def login_code():
     qry = "SELECT * FROM `login` WHERE `username`=%s AND `password`=%s"
     val = (username, password)
     res = selectone(qry, val)
-    print(res)
+
 
     if res is None:
         return '''<script>alert("Invalid username or password");window.location="/"</script>'''
@@ -210,11 +210,23 @@ def view_request():
     return render_template("provider/viewrequest.html", val = res)
 
 
-@app.route("/accept_request")
-def accept_request():
+@app.route("/accept_request1")
+def accept_request1():
     id = request.args.get('id')
+    session['rid'] = id
+    return render_template("provider/add_reply.html")
+
+
+@app.route("/accept_request", methods=['post'])
+def accept_request():
+    amount = request.form['textfield']
+    reply = request.form['textfield2']
     qry = "UPDATE `request` SET `status`='accepted' WHERE `id`=%s"
-    iud(qry, id)
+    iud(qry, session['rid'])
+
+    qry = "INSERT INTO `provider_reply` VALUES(NULL, %s, %s, %s)"
+    iud(qry, (session['rid'], amount, reply))
+
     return '''<script>alert("Success");window.location="/view_request"</script>'''
 
 
@@ -320,9 +332,17 @@ def delete_service():
 @app.route("/request_status")
 def request_status():
     print(session['lid'])
-    qry = "SELECT `serviceprovider`.`firstname`,`lastname`,`phone`,`services`.`service_name`,`request`.`status` FROM `request` JOIN `serviceprovider` ON `request`.`providerid`=`serviceprovider`.`lid` JOIN `services`ON `request`.`serviceid`=`services`.`id` where request.`userid` = %s"
+    qry = "SELECT `serviceprovider`.`firstname`,`lastname`,`phone`,`services`.`service_name`,`request`.`status`,request.id FROM `request` JOIN `serviceprovider` ON `request`.`providerid`=`serviceprovider`.`lid` JOIN `services`ON `request`.`serviceid`=`services`.`id` where request.`userid` = %s"
     res = selectall2(qry, session['lid'])
     return render_template("user/requeststatus.html", val=res)
+
+
+@app.route("/view_provider_reply")
+def view_provider_reply():
+    id = request.args.get('id')
+    qry = "SELECT * FROM `provider_reply` WHERE rid=%s"
+    res = selectall2(qry, id)
+    return render_template("user/view_provider_reply.html", val=res)
 
 
 
