@@ -1,0 +1,28 @@
+{% extends "provider/provider_index.html" %}
+{% block body %}
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Untitled Document</title>
+</head>
+
+<body>.
+<form id="form1" name="form1" method="post" action="insert_status">
+<table width="200" border="1" class="table table-hover table-striped">
+
+    <tr>
+        <th>Current Status: <b>{{val['reply']}}</b></th>
+    </tr>
+
+    <tr>
+      <th colspan="2">Update Status</th>
+       <td colspan="2"> <input type="text" name="textfield2"/> </td>
+    </tr>
+    <tr>
+
+      <td colspan="2"><input type="submit" value="submit"/></td>
+
+    </tr>
+  </table>
+</form>
+</body>
+{% endblock %}

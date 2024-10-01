@@ -210,6 +210,40 @@ def view_request():
     return render_template("provider/viewrequest.html", val = res)
 
 
+@app.route("/manage_request")
+def manage_request():
+    qry = "SELECT `user`.`firstname`, `lastname`, `request`.*,`services`.service_name FROM `request` JOIN `user` ON `request`.`userid`=`user`.`lid` JOIN `services` ON `request`.`serviceid`=`services`.id WHERE `request`.`providerid`=%s and request.status='accepted'"
+    res = selectall2(qry, session['lid'])
+    return render_template("provider/manage_request.html", val = res)
+
+
+@app.route("/update_status")
+def update_status():
+    id = request.args.get('id')
+    session['requpid'] = id
+
+    qry = "SELECT * FROM `provider_reply` WHERE rid=%s"
+    res = selectone(qry,id)
+
+    return render_template("provider/update status.html", val=res)
+
+
+@app.route("/insert_status", methods=['post'])
+def insert_status():
+    status = request.form['textfield2']
+    qry = "UPDATE `provider_reply` SET `reply`=%s WHERE `rid`=%s"
+    iud(qry, (status, session['requpid']))
+    return '''<script>alert("Success");window.location="manage_request"</script>'''
+
+
+@app.route("/mark_as_completed")
+def mark_as_completed():
+    id = request.args.get('id')
+    qry = "UPDATE `request` SET `status`='completed' WHERE `id`=%s"
+    iud(qry, id)
+    return '''<script>alert("Success");window.location="manage_request"</script>'''
+
+
 @app.route("/accept_request1")
 def accept_request1():
     id = request.args.get('id')
@@ -227,15 +261,15 @@ def accept_request():
     qry = "INSERT INTO `provider_reply` VALUES(NULL, %s, %s, %s)"
     iud(qry, (session['rid'], amount, reply))
 
-    return '''<script>alert("Success");window.location="/view_request"</script>'''
+    return '''<script>alert("Request Accepted");window.location="/view_request"</script>'''
 
 
 @app.route("/reject_request")
 def reject_request():
     id = request.args.get('id')
-    qry = "UPDATE `request` SET `status`='accepted' WHERE `id`=%s"
+    qry = "UPDATE `request` SET `status`='rejected' WHERE `id`=%s"
     iud(qry,id)
-    return '''<script>alert("Success");window.location="/view_request"</script>'''
+    return '''<script>alert("Request Rejected");window.location="/view_request"</script>'''
 
 
 @app.route("/admin_home")
@@ -245,6 +279,14 @@ def admin_home():
 @app.route("/provider_home")
 def provider_home():
     return render_template("provider/provider_index.html")
+
+
+@app.route("/view_rating_provider")
+def view_rating_provider():
+    qry = "SELECT `user`.`firstname`,`user`.`lastname`,`rate and review`.* FROM `rate and review` JOIN `user` ON `rate and review`.`userid`=`user`.`lid` WHERE `rate and review`.`providerid`=%s"
+    res = selectall2(qry, session['lid'])
+    return render_template("provider/view_rating_and_review.html", val=res)
+
 
 @app.route("/user_home")
 def user_home():

@@ -26,7 +26,20 @@
       <td>{{i['service_name']}}</td>
       <td>{{i['phone']}}</td>
       <td>{{i['status']}}</td>
-        <td><a href="view_provider_reply?id={{i['id']}}">View</a> </td>
+        <td>
+
+            {% if i['status']=="completed" %}
+
+            <a href="#" class="btn btn-success">pay amount</a>
+
+            {% else %}
+
+            <a href="view_provider_reply?id={{i['id']}}">View</a>
+
+            {% endif %}
+
+
+        </td>
     </tr>
 
     {% endfor %}

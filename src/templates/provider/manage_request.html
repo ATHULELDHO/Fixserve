@@ -1,0 +1,38 @@
+{% extends "provider/provider_index.html" %}
+{% block body %}
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Untitled Document</title>
+</head>
+
+<body>
+<form id="form1" name="form1" method="post" action="">
+<table width="200" border="1" class="table table-hover table-striped">
+    <tr>
+      <td scope="row">Name</th>
+      <td><label>Service</label></td>
+      <td>Date</td>
+      <td>Map </td>
+      <td colspan="2">  </td>
+      <label></label></td>
+    </tr>
+
+    {%  for i in val %}
+
+    <tr>
+      <th scope="row">{{i['firstname']}} {{i['lastname']}}</th>
+      <td>{{i['service_name']}}</td>
+      <td>{{i['date']}}</td>
+      <td><a href="https://www.google.com/maps?q={{i['latitude']}},{{i['longitude']}}">view map</a></td>
+           <td ><a href="mark_as_completed?id={{i['id']}}">Mark As Completed</a>
+             <br>
+             <a href="update_status?id={{i['id']}}">Update Current Status</a></td>
+
+    </tr>
+
+    {% endfor %}
+
+  </table>
+</form>
+</body>
+{% endblock %}
