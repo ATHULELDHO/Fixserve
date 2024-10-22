@@ -3,6 +3,8 @@ from src.dbconnectionnew import *
 import os
 from werkzeug.utils import secure_filename
 import razorpay
+import functools
+
 
 from flask_mail import *
 
@@ -25,6 +27,22 @@ mail = Mail(app)
 @app.route("/")
 def login():
     return render_template("login_index.html")
+
+
+def login_required(func):
+    @functools.wraps(func)
+    def secure_function():
+        if "lid" not in session:
+            return render_template('login_index.html')
+        return func()
+
+    return secure_function
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 
 @app.route("/login_code", methods=['post'])
@@ -128,6 +146,8 @@ def proregister_code():
 
 
 @app.route("/block_provider")
+@login_required
+
 def block_provider():
     qry = 'SELECT * FROM `serviceprovider` JOIN `login` ON `serviceprovider`.lid = `login`.id JOIN `services` ON `serviceprovider`.`service`=`services`.`id` WHERE `login`.type != "pending"'
     res = selectall(qry)
@@ -135,6 +155,7 @@ def block_provider():
 
 
 @app.route("/complaint_reply")
+@login_required
 def complaint_reply():
     id = request.args.get('id')
     session['cid'] = id
@@ -143,6 +164,7 @@ def complaint_reply():
 
 
 @app.route("/insert_reply", methods=['post'])
+@login_required
 def insert_reply():
     reply = request.form['textfield']
     qry = "UPDATE `complaint` SET `reply`=%s WHERE `id`=%s"
@@ -151,6 +173,7 @@ def insert_reply():
 
 
 @app.route("/verify_provider")
+@login_required
 def verify_provider():
     qry = 'SELECT * FROM `serviceprovider` JOIN `login` ON `serviceprovider`.lid = `login`.id JOIN `services` ON `serviceprovider`.`service`=`services`.`id` WHERE `login`.type = "pending"'
     res = selectall(qry)
@@ -158,6 +181,7 @@ def verify_provider():
 
 
 @app.route("/accept_provider")
+@login_required
 def accept_provider():
     id = request.args.get('id')
     qry = 'UPDATE `login` SET `type`="service_provider" WHERE id=%s'
@@ -193,6 +217,7 @@ def accept_provider():
 
 
 @app.route("/reject_provider")
+@login_required
 def reject_provider():
     id = request.args.get('id')
     qry = 'UPDATE `login` SET `type`="rejected" WHERE id=%s'
@@ -226,6 +251,7 @@ def reject_provider():
 
 
 @app.route("/block_provider2")
+@login_required
 def block_provider2():
     id = request.args.get('id')
     qry = 'UPDATE `login` SET `type`="blocked" WHERE id=%s'
@@ -234,6 +260,7 @@ def block_provider2():
 
 
 @app.route("/unblock_provider")
+@login_required
 def unblock_provider():
     id = request.args.get('id')
     qry = 'UPDATE `login` SET `type`="service_provider" WHERE id=%s'
@@ -242,6 +269,7 @@ def unblock_provider():
 
 
 @app.route("/view_complaint")
+@login_required
 def view_complaint():
         qry = 'SELECT * FROM `complaint` JOIN `user` ON `complaint`.`userid`=`user`.`lid` where reply="pending"'
         res = selectall(qry)
@@ -249,6 +277,7 @@ def view_complaint():
 
 
 @app.route("/rating_provider")
+@login_required
 def rating_provider():
     qry = "SELECT `serviceprovider`.`firstname`,`lastname`,`rate and review`.* FROM `rate and review` JOIN `serviceprovider` ON `rate and review`.`providerid`=`serviceprovider`.`lid` WHERE `rate and review`.`userid`=%s"
     res = selectall2(qry, session['lid'])
@@ -256,6 +285,7 @@ def rating_provider():
 
 
 @app.route("/add_rating", methods=['post'])
+@login_required
 def add_rating():
     qry = "SELECT `serviceprovider`.* FROM `serviceprovider` JOIN  `request` ON `serviceprovider`.`lid`=`request`.`providerid` WHERE `request`.`userid`=%s"
     res = selectall2(qry, session['lid'])
@@ -263,6 +293,7 @@ def add_rating():
 
 
 @app.route("/insert_rating_review", methods=['post'])
+@login_required
 def insert_rating_review():
     pid = request.form['select']
     rating = request.form['textfield']
@@ -275,6 +306,7 @@ def insert_rating_review():
 
 
 @app.route("/view_request")
+@login_required
 def view_request():
     qry = "SELECT `user`.`firstname`, `lastname`, `request`.*,`services`.service_name FROM `request` JOIN `user` ON `request`.`userid`=`user`.`lid` JOIN `services` ON `request`.`serviceid`=`services`.id WHERE `request`.`providerid`=%s and request.status='pending'"
     res = selectall2(qry, session['lid'])
@@ -282,6 +314,7 @@ def view_request():
 
 
 @app.route("/manage_request")
+@login_required
 def manage_request():
     qry = "SELECT `user`.`firstname`, `lastname`, `request`.*,`services`.service_name FROM `request` JOIN `user` ON `request`.`userid`=`user`.`lid` JOIN `services` ON `request`.`serviceid`=`services`.id WHERE `request`.`providerid`=%s and request.status='accepted'"
     res = selectall2(qry, session['lid'])
@@ -289,6 +322,7 @@ def manage_request():
 
 
 @app.route("/update_status")
+@login_required
 def update_status():
     id = request.args.get('id')
     session['requpid'] = id
@@ -300,6 +334,7 @@ def update_status():
 
 
 @app.route("/insert_status", methods=['post'])
+@login_required
 def insert_status():
     status = request.form['textfield2']
     qry = "UPDATE `provider_reply` SET `reply`=%s WHERE `rid`=%s"
@@ -308,6 +343,7 @@ def insert_status():
 
 
 @app.route("/mark_as_completed")
+@login_required
 def mark_as_completed():
     id = request.args.get('id')
     qry = "UPDATE `request` SET `status`='completed' WHERE `id`=%s"
@@ -323,6 +359,7 @@ def accept_request1():
 
 
 @app.route("/accept_request", methods=['post'])
+@login_required
 def accept_request():
     amount = request.form['textfield']
     reply = request.form['textfield2']
@@ -336,6 +373,7 @@ def accept_request():
 
 
 @app.route("/reject_request")
+@login_required
 def reject_request():
     id = request.args.get('id')
     qry = "UPDATE `request` SET `status`='rejected' WHERE `id`=%s"
@@ -344,15 +382,18 @@ def reject_request():
 
 
 @app.route("/admin_home")
+@login_required
 def admin_home():
     return render_template("admin/admin_index.html")
 
 @app.route("/provider_home")
+@login_required
 def provider_home():
     return render_template("provider/provider_index.html")
 
 
 @app.route("/view_rating_provider")
+@login_required
 def view_rating_provider():
     qry = "SELECT `user`.`firstname`,`user`.`lastname`,`rate and review`.* FROM `rate and review` JOIN `user` ON `rate and review`.`userid`=`user`.`lid` WHERE `rate and review`.`providerid`=%s"
     res = selectall2(qry, session['lid'])
@@ -360,10 +401,12 @@ def view_rating_provider():
 
 
 @app.route("/user_home")
+@login_required
 def user_home():
     return render_template("user/user_index.html")
 
 @app.route("/request_provder")
+@login_required
 def request_provder():
 
     qry = "select * from services"
@@ -373,6 +416,7 @@ def request_provder():
 
 
 @app.route("/search_request", methods=['post'])
+@login_required
 def search_request():
     pin = request.form['textfield']
     service_needed = request.form['select']
@@ -392,6 +436,7 @@ def search_request():
 
 
 @app.route("/send_request")
+@login_required
 def send_request():
     id = request.args.get('id')
     session['rid'] = id
@@ -399,6 +444,7 @@ def send_request():
 
 
 @app.route("/insert_request", methods=['post'])
+@login_required
 def insert_request():
     details = request.form['textfield']
     photo = request.files['file']
@@ -415,6 +461,7 @@ def insert_request():
 
 
 @app.route("/manage_service")
+@login_required
 def manage_service():
     qry = "SELECT * FROM `services`"
     res = selectall(qry)
@@ -422,11 +469,13 @@ def manage_service():
 
 
 @app.route("/add_service", methods=['post'])
+@login_required
 def add_service():
     return render_template("admin/add_services.html")
 
 
 @app.route("/insert_service", methods=['post'])
+@login_required
 def insert_service():
     service_name = request.form['textfield']
     qry = "INSERT INTO `services` VALUES(NULL, %s)"
@@ -435,6 +484,7 @@ def insert_service():
 
 
 @app.route("/delete_service")
+@login_required
 def delete_service():
     id = request.args.get('id')
     qry = "DELETE FROM `services` WHERE `id`=%s"
@@ -443,6 +493,7 @@ def delete_service():
 
 
 @app.route("/request_status")
+@login_required
 def request_status():
     print(session['lid'])
     qry = "SELECT `serviceprovider`.`firstname`,`lastname`,`phone`,`services`.`service_name`,`request`.`status`,request.id FROM `request` JOIN `serviceprovider` ON `request`.`providerid`=`serviceprovider`.`lid` JOIN `services`ON `request`.`serviceid`=`services`.`id` where request.`userid` = %s"
@@ -451,6 +502,7 @@ def request_status():
 
 
 @app.route('/pay_now')
+@login_required
 def pay_now():
     id = request.args.get('id')
     session['pay_req_amt_id'] = id
@@ -472,6 +524,7 @@ def pay_now():
 
 
 @app.route("/view_provider_reply")
+@login_required
 def view_provider_reply():
     id = request.args.get('id')
     qry = "SELECT * FROM `provider_reply` WHERE rid=%s"
@@ -480,6 +533,7 @@ def view_provider_reply():
 
 
 @app.route("/complaint")
+@login_required
 def complaint():
     qry = "SELECT * FROM `complaint` WHERE userid=%s"
     res = selectall2(qry, session['lid'])
@@ -487,11 +541,13 @@ def complaint():
 
 
 @app.route('/new_complaint', methods=['post'])
+@login_required
 def new_complaint():
     return render_template("user/new_complaint.html")
 
 
 @app.route("/insert_complaint", methods=['post'])
+@login_required
 def insert_complaint():
     complaint = request.form['textfield']
     qry = "INSERT INTO `complaint` VALUES(NULL, %s, %s, curdate(), 'pending')"
@@ -500,6 +556,7 @@ def insert_complaint():
 
 
 @app.route('/user_pay_proceed', methods=['post'])
+@login_required
 def user_pay_proceed():
     client = razorpay.Client(auth=("rzp_test_edrzdb8Gbx5U5M", "XgwjnFvJQNG6cS7Q13aHKDJj"))
     print(client)
@@ -508,6 +565,7 @@ def user_pay_proceed():
 
 
 @app.route('/user_pay_complete', methods=['post'])
+@login_required
 def user_pay_complete():
 
     qry = "INSERT INTO `payment` VALUES(NULL, %s, %s, CURDATE())"
@@ -517,6 +575,7 @@ def user_pay_complete():
 
 
 @app.route("/payment_details")
+@login_required
 def payment_details():
     qry = "SELECT `user`.`firstname`,`lastname`,`services`.`service_name`,`payment`.* FROM `user` JOIN `request` ON `user`.lid=`request`.userid JOIN `services` ON `request`.`serviceid`=`services`.id JOIN `payment` ON `request`.id=`payment`.rid WHERE `request`.`providerid`=%s"
     res = selectall2(qry, session['lid'])

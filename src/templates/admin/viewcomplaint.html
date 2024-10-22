@@ -1,35 +1,66 @@
 {% extends "admin/admin_index.html" %}
 {% block body %}
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>Untitled Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaints Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin: 20px 0;
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        .card-body {
+            background-color: white;
+        }
+        a.btn {
+            color: white;
+            background-color: #007bff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        a.btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 
 <body>
-<form id="form1" name="form1" method="post" action="">.
-<table width="200" border="1" class="table table-hover table-striped">
-    <tr>
-      <th scope="row">Name</th>
-      <td>Complaint</td>
-      <td>Date</td>
-      <td></td>
-    </tr>
+    <div class="container mt-4">
+        <h1 class="text-center">Complaints Overview</h1>
+        <div class="row">
+            {% for i in val %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        {{ i['firstname'] }} {{ i['lastname'] }}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Complaint</h5>
+                        <p class="card-text">{{ i['complaint'] }}</p>
+                        <p class="card-text"><small class="text-muted">{{ i['date'] }}</small></p>
+                        <a class="btn" href="complaint_reply?id={{ i['id'] }}">
+                            <i class="fas fa-reply"></i> Reply
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 
-    {% for i in  val %}
-
-    <tr>
-      <th>{{i['firstname']}} {{i['lastname']}}</th>
-      <th>{{i['complaint']}}</th>
-      <th>{{i['date']}}</th>
-
-
-      <td><p><a href="complaint_reply?id={{i['id']}}">Reply</a></p>
-      </td>
-    </tr>
-
-    {% endfor %}
-
-  </table>
-</form>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 {% endblock %}

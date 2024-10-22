@@ -2,84 +2,149 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>Untitled Document</title>
+<title>Registration Form</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7f6;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+    table {
+        width: 100%;
+        max-width: 600px;
+        margin: auto;
+        border-collapse: collapse;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+        padding: 15px;
+        text-align: left;
+    }
+    th {
+        background-color: #ffffff; /* Changed to white */
+        color: #333; /* Text color */
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        transition: border 0.3s;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+        border-color: #007BFF;
+        outline: none;
+    }
+    input[type="file"] {
+        padding: 5px;
+    }
+    input[type="submit"] {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+        font-size: 16px;
+    }
+    input[type="submit"]:hover {
+        background-color: #218838;
+    }
+    label {
+        display: block;
+        margin-bottom: 10px;
+    }
+</style>
 </head>
 
 <body>
-<form action="proregister_code" method="post" enctype="multipart/form-data" name="form1" id="form1" >
-  <table width="200" border="1">
+<form action="proregister_code" method="post" enctype="multipart/form-data" name="form1" id="form1">
+  <table>
     <tr>
       <th scope="row">Firstname</th>
       <td><label>
-        <input type="text" name="textfield" />
+        <input type="text" name="textfield" required />
       </label></td>
     </tr>
     <tr>
       <th scope="row">Lastname </th>
       <td><label>
-        <input type="text" name="textfield2" />
+        <input type="text" name="textfield2" required />
       </label></td>
     </tr>
     <tr>
-      <th scope="row"><p>Email ID </p>      </th>
+      <th scope="row"><p>Email ID </p></th>
       <td><label>
-        <input type="text" name="textfield3" />
+        <input type="email" name="textfield3" required />
       </label></td>
     </tr>
     <tr>
       <th scope="row">Phone No </th>
       <td><label>
-        <input type="text" name="textfield4" />
+        <input type="tel" name="textfield4" pattern="[0-9]{10}" required />
       </label></td>
     </tr>
     <tr>
       <th scope="row">Place</th>
       <td><label>
-        <input type="text" name="textfield5" />
+        <input type="text" name="textfield5" required />
       </label></td>
     </tr>
     <tr>
       <th scope="row">Pincode</th>
       <td><label>
-        <input type="text" name="textfield6" />
+        <input type="text" name="textfield6" pattern="[0-9]{6}" required />
       </label></td>
     </tr>
     <tr>
-      <th scope="row">Service  </th>
+      <th scope="row">Service</th>
       <td><label>
-       <select name="textfield7">
+       <select name="textfield7" required>
          {% for i in val %}
-
          <option value="{{i['id']}}">{{i['service_name']}}</option>
-
          {% endfor %}
-
        </select>
       </label></td>
     </tr>
     <tr>
       <th scope="row">Attested Document</th>
-      <td><label>      </label>
-        <label>
-        <input type="file" name="file2" />
+      <td><label>
+        <input type="file" name="file2" required />
       </label></td>
     </tr>
     <tr>
       <th scope="row">NOC Certificate </th>
       <td><label>
-        <input type="file" name="file" />
+        <input type="file" name="file" required />
       </label></td>
     </tr>
     <tr>
       <th scope="row">Username</th>
       <td><label>
-        <input type="text" name="textfield8" />
+        <input type="text" name="textfield8" required />
       </label></td>
     </tr>
     <tr>
       <th scope="row">Password</th>
       <td><label>
-        <input type="text" name="textfield9" />
+        <input type="password" name="textfield9" required pattern=".{6,}" title="Password must be at least 6 characters long"  />
       </label></td>
     </tr>
     <tr>
@@ -87,9 +152,7 @@
         <input type="submit" name="Submit" value="Register" />
       </label></th>
     </tr>
-
   </table>
-  <label></label>
 </form>
 </body>
 </html>
