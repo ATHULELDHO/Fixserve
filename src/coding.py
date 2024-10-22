@@ -2,11 +2,24 @@ from flask import *
 from src.dbconnectionnew import *
 import os
 from werkzeug.utils import secure_filename
+import razorpay
+
+from flask_mail import *
 
 
 app = Flask(__name__)
 
 app.secret_key = "73467834657"
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use the server for your mail service
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'fixserve37@gmail.com'  # Your email address
+app.config['MAIL_PASSWORD'] = 'pzky pjcq qtes itgj'  # Your email password
+app.config['MAIL_DEFAULT_SENDER'] = ('Food For Life-Donation And Distribution Management System', 'foodforlifedonation@gmail.com')
+
+mail = Mail(app)
 
 
 @app.route("/")
@@ -35,6 +48,12 @@ def login_code():
     elif res['type'] == "user":
         session['lid'] = res['id']
         return '''<script>alert("Welcome User");window.location="/user_home"</script>'''
+    elif res['type'] == "rejected":
+        session['lid'] = res['id']
+        return '''<script>alert("Your request have been rejected by admin");window.location="/"</script>'''
+    elif res['type'] == "pending":
+        session['lid'] = res['id']
+        return '''<script>alert("Your Registration is under processing");window.location="/"</script>'''
     else:
         return '''<script>alert("Invalid username or password");window.location="/"</script>'''
 
@@ -143,6 +162,33 @@ def accept_provider():
     id = request.args.get('id')
     qry = 'UPDATE `login` SET `type`="service_provider" WHERE id=%s'
     iud(qry,id)
+
+
+    qry = "SELECT * FROM `serviceprovider` WHERE lid=%s"
+    res = selectone(qry, id)
+
+    def mail(email):
+        try:
+            gmail = smtplib.SMTP('smtp.gmail.com', 587)
+            gmail.ehlo()
+            gmail.starttls()
+            gmail.login('fixserve37@gmail.com', 'pzky pjcq qtes itgj')
+        except Exception as e:
+            print("Couldn't setup email!!" + str(e))
+        msg = MIMEText("You have been successfully accepted by admin")
+        print(msg)
+        msg['Subject'] = 'hey there'
+        msg['To'] = email
+        msg['From'] = 'fixserve37@gmail.com'
+        try:
+            gmail.send_message(msg)
+        except Exception as e:
+            print("COULDN'T SEND EMAIL", str(e))
+        return '''<script>alert("SEND"); window.location="/"</script>'''
+
+    mail(res['email'])
+
+
     return '''<script>alert("Success");window.location="/verify_provider"</script>'''
 
 
@@ -151,6 +197,31 @@ def reject_provider():
     id = request.args.get('id')
     qry = 'UPDATE `login` SET `type`="rejected" WHERE id=%s'
     iud(qry,id)
+
+    qry = "SELECT * FROM `serviceprovider` WHERE lid=%s"
+    res = selectone(qry, id)
+
+    def mail(email):
+        try:
+            gmail = smtplib.SMTP('smtp.gmail.com', 587)
+            gmail.ehlo()
+            gmail.starttls()
+            gmail.login('fixserve37@gmail.com', 'pzky pjcq qtes itgj')
+        except Exception as e:
+            print("Couldn't setup email!!" + str(e))
+        msg = MIMEText("You have been rejected by admin")
+        print(msg)
+        msg['Subject'] = 'hey there'
+        msg['To'] = email
+        msg['From'] = 'fixserve37@gmail.com'
+        try:
+            gmail.send_message(msg)
+        except Exception as e:
+            print("COULDN'T SEND EMAIL", str(e))
+        return '''<script>alert("SEND"); window.location="/"</script>'''
+
+    mail(res['email'])
+
     return '''<script>alert("Success");window.location="/verify_provider"</script>'''
 
 
@@ -379,6 +450,27 @@ def request_status():
     return render_template("user/requeststatus.html", val=res)
 
 
+@app.route('/pay_now')
+def pay_now():
+    id = request.args.get('id')
+    session['pay_req_amt_id'] = id
+
+    qry = "SELECT * FROM `provider_reply` WHERE rid=%s"
+    res = selectone(qry,id)
+
+    session['amt'] = int(res['amount']) * 100
+
+    session['actual_amt'] = res['amount']
+
+    qry = "SELECT * FROM `payment` WHERE rid=%s"
+    res2 = selectone(qry, id)
+
+    if res2 is not None:
+        return '''<script>alert("Already payed");window.location="request_status"</script>'''
+    else:
+        return render_template("user/payment.html", amt=res['amount'])
+
+
 @app.route("/view_provider_reply")
 def view_provider_reply():
     id = request.args.get('id')
@@ -387,6 +479,48 @@ def view_provider_reply():
     return render_template("user/view_provider_reply.html", val=res)
 
 
+@app.route("/complaint")
+def complaint():
+    qry = "SELECT * FROM `complaint` WHERE userid=%s"
+    res = selectall2(qry, session['lid'])
+    return render_template("user/complaint.html", val=res)
+
+
+@app.route('/new_complaint', methods=['post'])
+def new_complaint():
+    return render_template("user/new_complaint.html")
+
+
+@app.route("/insert_complaint", methods=['post'])
+def insert_complaint():
+    complaint = request.form['textfield']
+    qry = "INSERT INTO `complaint` VALUES(NULL, %s, %s, curdate(), 'pending')"
+    iud(qry, (session['lid'], complaint))
+    return '''<script>alert("Success");window.location="complaint"</script>'''
+
+
+@app.route('/user_pay_proceed', methods=['post'])
+def user_pay_proceed():
+    client = razorpay.Client(auth=("rzp_test_edrzdb8Gbx5U5M", "XgwjnFvJQNG6cS7Q13aHKDJj"))
+    print(client)
+    payment = client.order.create({'amount': session['amt'], 'currency': "INR", 'payment_capture': '1'})
+    return render_template('UserPayProceed.html',p=payment)
+
+
+@app.route('/user_pay_complete', methods=['post'])
+def user_pay_complete():
+
+    qry = "INSERT INTO `payment` VALUES(NULL, %s, %s, CURDATE())"
+    iud(qry, (session['pay_req_amt_id'], session['actual_amt']))
+
+    return '''<script>alert("payment successful");window.location="request_status"</script>'''
+
+
+@app.route("/payment_details")
+def payment_details():
+    qry = "SELECT `user`.`firstname`,`lastname`,`services`.`service_name`,`payment`.* FROM `user` JOIN `request` ON `user`.lid=`request`.userid JOIN `services` ON `request`.`serviceid`=`services`.id JOIN `payment` ON `request`.id=`payment`.rid WHERE `request`.`providerid`=%s"
+    res = selectall2(qry, session['lid'])
+    return render_template("provider/view_payment.html", val=res)
 
 
 app.run(debug = True)
